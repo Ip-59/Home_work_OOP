@@ -13,6 +13,7 @@ class Student:
         self.aver_grade = 0
 
     def average_grade(self):
+        self.all_grades = []
         for course in self.grades:
             self.all_grades.extend(self.grades[course])
         self.aver_grade = round(sum(self.all_grades) / len(self.all_grades),2)
@@ -68,6 +69,15 @@ class Student:
 Завершенные курсы: {', '.join(self.finished_courses)}
 """
 
+# Реализуйте возможность сравнивать (через операторы сравнения) между собой лекторов по средней
+# оценке за лекции и студентов по средней оценке за домашние задания.
+
+    def __eq__(self, other_student):
+        return self.aver_grade == other_student.aver_grade
+    
+    def __lt__(self, other_student):
+        return self.aver_grade < other_student.aver_grade
+
 
 # теперь класс Mentor должен стать родительским классом,
 # имя, фамилия и список закрепленных курсов логично реализовать на уровне родительского класса.
@@ -111,6 +121,15 @@ class Lecturer(Mentor):
 Имя: {self.name}
 Фамилия: {self.surname}
 Средняя оценка за лекции: {self.total_aver_grade}"""
+
+
+# Реализуйте возможность сравнивать (через операторы сравнения) между собой лекторов по средней
+# оценке за лекции и студентов по средней оценке за домашние задания.
+
+    def __eq__(self, other_lectorer):
+        return self.total_aver_grade == other_lectorer.total_aver_grade
+    def __lt__(self, other_lectorer):
+        return self.total_aver_grade < other_lectorer.total_aver_grade
 
 
 # и Reviewer (эксперты, проверяющие домашние задания).
@@ -187,11 +206,20 @@ student_2.finished_courses += ['Основы']
 student_2.finished_courses += ['Git']
 student_2.courses_in_progress += ['OOP']
 student_2.courses_in_progress += ['API']
+student_3 = Student('Петр', 'Попов', 'man')
+student_3.finished_courses += ['Основы']
+student_3.finished_courses += ['Git']
+student_3.courses_in_progress += ['OOP']
+student_3.courses_in_progress += ['API']
 
 lecturer_1 = Lecturer('Петр', 'Петров', 'Лектор')
 lecturer_1.courses_attached += ['OOP']
 lecturer_2 = Lecturer('Сидор', 'Сидоров', 'Лектор')
 lecturer_2.courses_attached += ['API']
+lecturer_3 = Lecturer('Игнат', 'Козлов', 'Лектор')
+lecturer_3.courses_attached += ['API']
+lecturer_4 = Lecturer('Олег', 'Лебедев', 'Лектор')
+lecturer_4.courses_attached += ['API']
 
 reviewer_1 = Reviewer('Михаил', 'Михайлов','Эксперт')
 reviewer_1.courses_attached += ['OOP']
@@ -208,42 +236,81 @@ reviewer_2.rate_hw(student_1, 'API', 7)
 reviewer_2.rate_hw(student_1, 'API', 8)
 reviewer_2.rate_hw(student_2, 'API', 9)
 reviewer_2.rate_hw(student_2, 'API', 10)
+reviewer_1.rate_hw(student_3, 'OOP', 7)
+reviewer_1.rate_hw(student_3, 'OOP', 8)
+reviewer_2.rate_hw(student_3, 'API', 9)
+reviewer_2.rate_hw(student_3, 'API', 8)
 
-print(student_1, student_2)
+print(student_1, student_2, student_3)
 
 student_1.rate_lect(lecturer_1, 'OOP', 10)
 student_1.rate_lect(lecturer_2, 'API', 9)
+student_1.rate_lect(lecturer_3, 'API', 10)
+student_1.rate_lect(lecturer_4, 'API', 9)
 student_2.rate_lect(lecturer_1, 'OOP', 9)
 student_2.rate_lect(lecturer_2, 'API', 10)
+student_2.rate_lect(lecturer_3, 'API', 10)
+student_2.rate_lect(lecturer_4, 'API', 9)
+student_3.rate_lect(lecturer_1, 'OOP', 10)
+student_3.rate_lect(lecturer_2, 'API', 10)
+student_3.rate_lect(lecturer_3, 'API', 10)
+student_3.rate_lect(lecturer_4, 'API', 9)
 
-print(lecturer_1, lecturer_2)
-
-compare_student (student_1, student_2)
-
-compare_lecturer (lecturer_1, lecturer_2)
+print(lecturer_1, lecturer_2, lecturer_3, lecturer_4)
 
 
-#                                                                         ...а также реализуйте две функции:
 # - для подсчета средней оценки за домашние задания по всем студентам в рамках конкретного курса (в качестве
 # аргументов принимаем список студентов и название курса);
 # - для подсчета средней оценки за лекции всех лекторов в рамках курса (в качестве аргумента принимаем список
 # лекторов и название курса).
-#
-# ЛИБО Я НЕ ПОНИМАЮ, ЧТО ТРЕБУЕТСЯ СДЕЛАТЬ, ЛИБО НАМ НЕ ДАВАЛИ НА ЛЕКЦИИ ЗНАНИЯ О ТОМ, КАК ПОЛУЧИТЬ АТРИБУТЫ ОБЪЕКТОВ,
-# ЗАДАННОГО КЛАССА. В ИНТЕРНЕТЕ НОРМАЛЬНОГО СПОСОБА НЕ НАШЕЛ
+
+
+list_of_students =[student_1, student_2, student_3]
+course = 'API'
+list_of_lecturers = [lecturer_1, lecturer_2, lecturer_3, lecturer_4]
 
 def aver_hw_rate_in_course(students, course):
     all_grade_hw_course = []
     aver_grade_hw_course = 0
     for student in students:
-        all_grade_hw_course.append(student.grades[course])
+        if course in student.courses_in_progress:
+            all_grade_hw_course.extend(student.grades[course])
+        else:
+            continue
     aver_grade_hw_course = round(sum(all_grade_hw_course) / len(all_grade_hw_course),2)
     return aver_grade_hw_course 
+
+a_hw_r_c = aver_hw_rate_in_course(list_of_students,course)
+
+print(f'Средняя оценка домашних заданий по курсу {course} : {a_hw_r_c}')
 
 def aver_lect_rate_in_course(lecturers, course):
     all_grade_lect_course = []
     aver_grade_lect_course = 0
     for lecturer in lecturers:
-        all_grade_lect_course.append(lecturer.grades[course])
+        if course in lecturer.courses_attached:
+            all_grade_lect_course.extend(lecturer.grades[course])
+        else:
+            continue
     aver_grade_lect_course = round(sum(all_grade_lect_course) / len(all_grade_lect_course),2)
     return aver_grade_lect_course
+
+a_l_r_c = aver_lect_rate_in_course(list_of_lecturers, course)
+
+print(f'Средняя оценка лекций по курсу {course} : {a_l_r_c}')
+
+print (lecturer_1 == lecturer_2)
+print (lecturer_1 < lecturer_2)
+print (lecturer_1 > lecturer_2)
+
+print (lecturer_3 == lecturer_4)
+print (lecturer_3 < lecturer_4)
+print (lecturer_3 > lecturer_4)
+
+print(student_1 == student_2)
+print(student_1 < student_2)
+print(student_1 > student_2)
+
+print(student_1 == student_3)
+print(student_1 < student_3)
+print(student_1 > student_3)
